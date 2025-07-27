@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Dark Mode Quiz Game</title>
+  <title>Ultimate Quiz Game</title>
   <style>
     body {
       margin: 0;
@@ -44,128 +44,153 @@
       background: #4facfe;
     }
     .option.correct {
-      background: #28a745;
+      background: #28a745 !important;
       color: #fff;
     }
     .option.wrong {
-      background: #dc3545;
+      background: #dc3545 !important;
       color: #fff;
     }
     .score {
-      margin-top: 20px;
+      margin-top: 10px;
       font-weight: bold;
     }
-    .next-btn {
-      margin-top: 15px;
-      padding: 10px 20px;
-      background: #17a2b8;
-      color: #fff;
+    .lives {
+      margin-top: 5px;
+      font-weight: bold;
+    }
+    .buy-btn {
+      margin: 5px;
+      padding: 8px 16px;
+      background: #ffc107;
+      color: #000;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 14px;
+    }
+    .game-over {
+      font-size: 24px;
+      color: red;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
 
   <div class="quiz-container">
-    <h2>🧩 Quiz Night</h2>
+    <h2>🧩 Ultimate Quiz</h2>
     <div class="question" id="question">Loading...</div>
     <button class="option" id="option0" onclick="checkAnswer(0)"></button>
     <button class="option" id="option1" onclick="checkAnswer(1)"></button>
     <button class="option" id="option2" onclick="checkAnswer(2)"></button>
     <button class="option" id="option3" onclick="checkAnswer(3)"></button>
-    <div class="score" id="score">Score: 0</div>
-    <button class="next-btn" onclick="loadNextQuestion()">Next Question</button>
+    <div class="score" id="score">Rupiya: 0</div>
+    <div class="lives" id="lives">Chances: 5</div>
+    <div>
+      <button class="buy-btn" onclick="buyChances(10,5)">Buy 5 Chances (₹10)</button>
+      <button class="buy-btn" onclick="buyChances(25,20)">Buy 20 Chances (₹25)</button>
+      <button class="buy-btn" onclick="buyChances(100,150)">Buy 150 Chances (₹100)</button>
+    </div>
+    <div class="game-over" id="gameOver"></div>
   </div>
 
   <script>
     const questions = [
       {
-        question: "Which animal is known as King of Jungle?",
-        options: ["Tiger", "Lion", "Elephant", "Bear"],
+        question: "Who is the father of India?",
+        options: ["Nehru", "Gandhi", "Patel", "Bose"],
         answer: 1
       },
       {
-        question: "Capital of France?",
-        options: ["London", "Berlin", "Paris", "Madrid"],
+        question: "Capital of USA?",
+        options: ["New York", "Washington DC", "Los Angeles", "Chicago"],
+        answer: 1
+      },
+      {
+        question: "2 + 2 = ?",
+        options: ["3", "4", "5", "6"],
+        answer: 1
+      },
+      {
+        question: "Largest desert?",
+        options: ["Gobi", "Kalahari", "Sahara", "Arctic"],
         answer: 2
       },
       {
-        question: "5 + 7 = ?",
-        options: ["10", "11", "12", "13"],
-        answer: 2
-      },
-      {
-        question: "Fastest land animal?",
-        options: ["Lion", "Cheetah", "Horse", "Leopard"],
-        answer: 1
-      },
-      {
-        question: "Largest ocean?",
-        options: ["Indian", "Atlantic", "Pacific", "Arctic"],
-        answer: 2
-      },
-      {
-        question: "Who invented Telephone?",
-        options: ["Newton", "Bell", "Tesla", "Einstein"],
-        answer: 1
-      },
-      {
-        question: "Which gas do plants take?",
-        options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
-        answer: 1
-      },
-      {
-        question: "2 * 6 = ?",
-        options: ["12", "10", "14", "8"],
-        answer: 0
-      },
-      {
-        question: "Which planet is known as Red Planet?",
-        options: ["Venus", "Mars", "Jupiter", "Mercury"],
-        answer: 1
-      },
-      {
-        question: "First man to step on Moon?",
-        options: ["Buzz Aldrin", "Yuri Gagarin", "Neil Armstrong", "Michael Collins"],
+        question: "Fastest bird?",
+        options: ["Crow", "Sparrow", "Falcon", "Eagle"],
         answer: 2
       }
     ];
 
     let currentQuestion = {};
-    let score = 0;
+    let rupiya = 0;
+    let lives = 5;
+    let gameOver = false;
 
     function loadNextQuestion() {
       clearStatus();
       currentQuestion = questions[Math.floor(Math.random() * questions.length)];
       document.getElementById("question").innerText = currentQuestion.question;
       currentQuestion.options.forEach((opt, index) => {
-        document.getElementById("option" + index).innerText = opt;
-        document.getElementById("option" + index).disabled = false;
+        const btn = document.getElementById("option" + index);
+        btn.innerText = opt;
+        btn.disabled = false;
       });
     }
 
     function checkAnswer(selected) {
+      if (gameOver) return;
       const correct = currentQuestion.answer;
       if (selected === correct) {
         document.getElementById("option" + selected).classList.add("correct");
-        score++;
+        rupiya++;
       } else {
         document.getElementById("option" + selected).classList.add("wrong");
         document.getElementById("option" + correct).classList.add("correct");
+        lives--;
       }
+      updateStatus();
+      disableOptions();
+      if (lives <= 0) {
+        endGame();
+      } else {
+        setTimeout(loadNextQuestion, 1000);
+      }
+    }
+
+    function disableOptions() {
       for (let i = 0; i < 4; i++) {
         document.getElementById("option" + i).disabled = true;
       }
-      document.getElementById("score").innerText = "Score: " + score;
     }
 
     function clearStatus() {
       for (let i = 0; i < 4; i++) {
-        document.getElementById("option" + i).classList.remove("correct", "wrong");
+        const btn = document.getElementById("option" + i);
+        btn.classList.remove("correct", "wrong");
       }
+    }
+
+    function updateStatus() {
+      document.getElementById("score").innerText = "Rupiya: " + rupiya;
+      document.getElementById("lives").innerText = "Chances: " + lives;
+    }
+
+    function buyChances(cost, chance) {
+      if (rupiya >= cost) {
+        rupiya -= cost;
+        lives += chance;
+        updateStatus();
+      } else {
+        alert("Not enough Rupiya!");
+      }
+    }
+
+    function endGame() {
+      gameOver = true;
+      document.getElementById("gameOver").innerText = "💀 Game Over!";
     }
 
     window.onload = loadNextQuestion;
