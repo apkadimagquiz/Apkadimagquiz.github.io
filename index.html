@@ -1,215 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GK Quiz</title>
-    <link rel="stylesheet" href="style.css">
+  <title>Apka Dimag Quiz</title>
 </head>
 <body>
-    <div class="quiz-container">
-        <h1>GK Quiz</h1>
-        <div id="question-container">
-            <h2 id="question">Question goes here</h2>
-            <div id="answer-buttons" class="btn-container">
-                <button class="btn">Answer 1</button>
-                <button class="btn">Answer 2</button>
-                <button class="btn">Answer 3</button>
-                <button class="btn">Answer 4</button>
-            </div>
-        </div>
-        <button id="next-btn" class="next-btn">Next</button>
-    </div>
+  <h1>Apka Dimag Quiz</h1>
+  <p id="question">What is the capital of India?</p>
 
-    <script src="script.js"></script>
+  <button onclick="checkAnswer('A')">A) Mumbai</button>
+  <button onclick="checkAnswer('B')">B) Delhi</button>
+  <button onclick="checkAnswer('C')">C) Kolkata</button>
+  <button onclick="checkAnswer('D')">D) Chennai</button>
+
+  <p id="result"></p>
+
+  <script>
+    function checkAnswer(option) {
+      if (option === 'B') {
+        document.getElementById('result').innerText = "✅ Correct! Delhi is the capital.";
+      } else {
+        document.getElementById('result').innerText = "❌ Wrong! Try again.";
+      }
+    }
+  </script>
 </body>
 </html>
-body {
-    background-color: #f0f2f5;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-}
-
-.quiz-container {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 90%;
-    max-width: 500px;
-    text-align: center;
-}
-
-h1 {
-    color: #333;
-    border-bottom: 2px solid #ddd;
-    padding-bottom: 10px;
-}
-
-#question-container {
-    margin: 20px 0;
-}
-
-#question {
-    color: #555;
-    font-size: 1.2em;
-}
-
-.btn-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.btn {
-    background-color: #e9ecef;
-    border: none;
-    padding: 15px;
-    font-size: 1em;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.btn:hover:not(.correct):not(.incorrect) {
-    background-color: #d1d6db;
-}
-
-.btn.correct {
-    background-color: #28a745;
-    color: white;
-}
-
-.btn.incorrect {
-    background-color: #dc3545;
-    color: white;
-}
-
-.next-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 1em;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 20px;
-    display: none; /* Initially hidden */
-}
-const questions = [
-    {
-        question: "Bharat ki rajdhani kya hai?",
-        answers: [
-            { text: "Kolkata", correct: false },
-            { text: "Mumbai", correct: false },
-            { text: "New Delhi", correct: true },
-            { text: "Chennai", correct: false },
-        ]
-    },
-    {
-        question: "Duniya ka sabse bada mahasagar kaun sa hai?",
-        answers: [
-            { text: "Atlantic Mahasagar", correct: false },
-            { text: "Hindsagar", correct: false },
-            { text: "Prashant Mahasagar", correct: true },
-            { text: "Arctic Mahasagar", correct: false },
-        ]
-    },
-    {
-        question: "Surya ke sabse kareeb kaun sa grah hai?",
-        answers: [
-            { text: "Shukra", correct: false },
-            { text: "Budh", correct: true },
-            { text: "Prithvi", correct: false },
-            { text: "Mangal", correct: false },
-        ]
-    }
-];
-
-const questionElement = document.getElementById("question");
-const answerButtons = document.getElementById("answer-buttons");
-const nextButton = document.getElementById("next-btn");
-
-let currentQuestionIndex = 0;
-let score = 0;
-
-function startQuiz() {
-    currentQuestionIndex = 0;
-    score = 0;
-    nextButton.innerHTML = "Next";
-    showQuestion();
-}
-
-function showQuestion() {
-    resetState();
-    let currentQuestion = questions[currentQuestionIndex];
-    let questionNo = currentQuestionIndex + 1;
-    questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
-
-    currentQuestion.answers.forEach(answer => {
-        const button = document.createElement("button");
-        button.innerHTML = answer.text;
-        button.classList.add("btn");
-        answerButtons.appendChild(button);
-        if (answer.correct) {
-            button.dataset.correct = answer.correct;
-        }
-        button.addEventListener("click", selectAnswer);
-    });
-}
-
-function resetState() {
-    nextButton.style.display = "none";
-    while (answerButtons.firstChild) {
-        answerButtons.removeChild(answerButtons.firstChild);
-    }
-}
-
-function selectAnswer(e) {
-    const selectedBtn = e.target;
-    const isCorrect = selectedBtn.dataset.correct === "true";
-    if (isCorrect) {
-        selectedBtn.classList.add("correct");
-        score++;
-    } else {
-        selectedBtn.classList.add("incorrect");
-    }
-    Array.from(answerButtons.children).forEach(button => {
-        if (button.dataset.correct === "true") {
-            button.classList.add("correct");
-        }
-        button.disabled = true;
-    });
-    nextButton.style.display = "block";
-}
-
-function showScore() {
-    resetState();
-    questionElement.innerHTML = `Aapne ${questions.length} sawalon mein se ${score} sahi jawab diye!`;
-    nextButton.innerHTML = "Play Again";
-    nextButton.style.display = "block";
-}
-
-function handleNextButton() {
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questions.length) {
-        showQuestion();
-    } else {
-        showScore();
-    }
-}
-
-nextButton.addEventListener("click", () => {
-    if (currentQuestionIndex < questions.length) {
-        handleNextButton();
-    } else {
-        startQuiz();
-    }
-});
-
-startQuiz();
