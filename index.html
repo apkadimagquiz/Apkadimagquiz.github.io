@@ -1,27 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Apka Dimag Quiz</title>
+  <title>Apka Dimag Endless Quiz</title>
 </head>
 <body>
-  <h1>Apka Dimag Quiz</h1>
-  <p id="question">What is the capital of India?</p>
+  <h1>Apka Dimag Endless Quiz</h1>
+  <p id="question"></p>
 
-  <button onclick="checkAnswer('A')">A) Mumbai</button>
-  <button onclick="checkAnswer('B')">B) Delhi</button>
-  <button onclick="checkAnswer('C')">C) Kolkata</button>
-  <button onclick="checkAnswer('D')">D) Chennai</button>
+  <button onclick="checkAnswer(0)" id="btn0"></button>
+  <button onclick="checkAnswer(1)" id="btn1"></button>
+  <button onclick="checkAnswer(2)" id="btn2"></button>
+  <button onclick="checkAnswer(3)" id="btn3"></button>
 
   <p id="result"></p>
 
   <script>
-    function checkAnswer(option) {
-      if (option === 'B') {
-        document.getElementById('result').innerText = "✅ Correct! Delhi is the capital.";
-      } else {
-        document.getElementById('result').innerText = "❌ Wrong! Try again.";
+    const quiz = [
+      {
+        question: "What is the capital of India?",
+        options: ["Mumbai", "Delhi", "Kolkata", "Chennai"],
+        answer: 1
+      },
+      {
+        question: "Which is the largest ocean?",
+        options: ["Atlantic", "Indian", "Pacific", "Arctic"],
+        answer: 2
+      },
+      {
+        question: "Who wrote the Ramayana?",
+        options: ["Tulsidas", "Valmiki", "Ved Vyas", "Kalidas"],
+        answer: 1
       }
+    ];
+
+    let currentQuestion = 0;
+
+    function showQuestion() {
+      const q = quiz[currentQuestion];
+      document.getElementById("question").innerText = q.question;
+      q.options.forEach((opt, i) => {
+        document.getElementById(`btn${i}`).innerText = opt;
+      });
+      document.getElementById("result").innerText = "";
     }
+
+    function checkAnswer(selected) {
+      const q = quiz[currentQuestion];
+      if (selected === q.answer) {
+        document.getElementById("result").innerText = "✅ Correct!";
+      } else {
+        document.getElementById("result").innerText = "❌ Wrong!";
+      }
+      currentQuestion = (currentQuestion + 1) % quiz.length;
+      setTimeout(showQuestion, 1000);
+    }
+
+    showQuestion();
   </script>
 </body>
 </html>
