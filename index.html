@@ -5,12 +5,13 @@
 </head>
 <body>
   <h1>Apka Dimag Endless Quiz</h1>
-  <p id="question"></p>
 
-  <button onclick="checkAnswer(0)" id="btn0"></button>
-  <button onclick="checkAnswer(1)" id="btn1"></button>
-  <button onclick="checkAnswer(2)" id="btn2"></button>
-  <button onclick="checkAnswer(3)" id="btn3"></button>
+  <p id="question">Loading question...</p>
+
+  <button id="btn0" onclick="checkAnswer(0)">Option 1</button>
+  <button id="btn1" onclick="checkAnswer(1)">Option 2</button>
+  <button id="btn2" onclick="checkAnswer(2)">Option 3</button>
+  <button id="btn3" onclick="checkAnswer(3)">Option 4</button>
 
   <p id="result"></p>
 
@@ -38,9 +39,9 @@
     function showQuestion() {
       const q = quiz[currentQuestion];
       document.getElementById("question").innerText = q.question;
-      q.options.forEach((opt, i) => {
-        document.getElementById(`btn${i}`).innerText = opt;
-      });
+      for (let i = 0; i < 4; i++) {
+        document.getElementById("btn" + i).innerText = q.options[i];
+      }
       document.getElementById("result").innerText = "";
     }
 
@@ -55,6 +56,7 @@
       setTimeout(showQuestion, 1000);
     }
 
+    // Show the first question when page loads
     showQuestion();
   </script>
 </body>
