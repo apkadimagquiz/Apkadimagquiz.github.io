@@ -1,152 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>NO REPEAT QUIZ</title>
+  <meta charset="UTF-8">
+  <title>Legendary Ludo</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background: #222;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    .quiz-container {
-      background: #333;
-      padding: 20px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 500px;
+      font-family: 'Arial', sans-serif;
       text-align: center;
+      background-color: #e0f7fa;
+      margin: 0;
+      padding: 20px;
     }
-    .question { margin: 20px 0; font-size: 20px; }
-    .option {
-      display: block; margin: 8px 0; padding: 10px;
-      background: #0af; color: #000; border: none;
-      border-radius: 5px; cursor: pointer; font-size: 16px;
+
+    h1 {
+      color: #00796b;
     }
-    .option.correct { background: green !important; color: #fff; }
-    .option.wrong { background: red !important; color: #fff; }
-    .score, .lives { margin: 5px; }
-    .buy-btn {
-      margin: 5px; padding: 8px 15px;
-      background: #fc0; color: #000;
-      border: none; border-radius: 5px; cursor: pointer;
+
+    .ludo-board {
+      display: grid;
+      grid-template-columns: repeat(5, 60px);
+      gap: 5px;
+      justify-content: center;
+      margin: 20px auto;
     }
-    .game-over { font-size: 24px; color: red; margin-top: 15px; }
+
+    .cell {
+      width: 60px;
+      height: 60px;
+      background-color: #ffffff;
+      border: 2px solid #333;
+      position: relative;
+      border-radius: 10px;
+    }
+
+    .cell::after {
+      content: '';
+      display: block;
+      padding-bottom: 100%;
+    }
+
+    .token {
+      position: absolute;
+      font-size: 30px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    #dice {
+      font-size: 40px;
+      margin: 10px;
+    }
+
+    .controls {
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #009688;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #00796b;
+    }
   </style>
 </head>
 <body>
-  <div class="quiz-container">
-    <h2>💯 No Repeat Quiz</h2>
-    <div class="question" id="question">Loading...</div>
-    <button class="option" id="option0" onclick="checkAnswer(0)"></button>
-    <button class="option" id="option1" onclick="checkAnswer(1)"></button>
-    <button class="option" id="option2" onclick="checkAnswer(2)"></button>
-    <button class="option" id="option3" onclick="checkAnswer(3)"></button>
-    <div class="score" id="score">Rupiya: 0</div>
-    <div class="lives" id="lives">Chances: 5</div>
-    <div>
-      <button class="buy-btn" onclick="buyChances(10,5)">Buy 5 (₹10)</button>
-      <button class="buy-btn" onclick="buyChances(25,20)">Buy 20 (₹25)</button>
-      <button class="buy-btn" onclick="buyChances(100,150)">Buy 150 (₹100)</button>
-    </div>
-    <div class="game-over" id="gameOver"></div>
+  <h1>🎲 Legendary Ludo</h1>
+
+  <div class="ludo-board" id="board">
+    <!-- 15 cells -->
+    <div class="cell" id="cell0"></div>
+    <div class="cell" id="cell1"></div>
+    <div class="cell" id="cell2"></div>
+    <div class="cell" id="cell3"></div>
+    <div class="cell" id="cell4"></div>
+    <div class="cell" id="cell5"></div>
+    <div class="cell" id="cell6"></div>
+    <div class="cell" id="cell7"></div>
+    <div class="cell" id="cell8"></div>
+    <div class="cell" id="cell9"></div>
+    <div class="cell" id="cell10"></div>
+    <div class="cell" id="cell11"></div>
+    <div class="cell" id="cell12"></div>
+    <div class="cell" id="cell13"></div>
+    <div class="cell" id="cell14"></div>
+  </div>
+
+  <div class="controls">
+    <button onclick="rollDice()">Roll Dice</button>
+    <div id="dice">🎲</div>
+    <p id="turnText">Turn: Player 1 (🔴)</p>
   </div>
 
   <script>
-    const masterQuestions = [
-      { question: "Capital of India?", options: ["Delhi", "Mumbai", "Kolkata", "Chennai"], answer: 0 },
-      { question: "2 + 2 ?", options: ["2", "3", "4", "5"], answer: 2 },
-      { question: "Color of sky?", options: ["Blue", "Green", "Yellow", "Pink"], answer: 0 },
-      { question: "5 x 5 ?", options: ["10", "20", "25", "30"], answer: 2 },
-      { question: "Largest ocean?", options: ["Atlantic", "Indian", "Arctic", "Pacific"], answer: 3 },
-      { question: "Who wrote Ramayan?", options: ["Valmiki", "Vyas", "Kalidas", "Kabir"], answer: 0 }
-    ];
+    let player1Pos = -1;
+    let player2Pos = -1;
+    let currentPlayer = 1;
 
-    let questionPool = [];
-    let currentQuestion = {};
-    let rupiya = 0;
-    let lives = 5;
-    let gameOver = false;
+    function rollDice() {
+      const roll = Math.floor(Math.random() * 6) + 1;
+      document.getElementById("dice").innerText = `🎲 ${roll}`;
 
-    function resetPool() {
-      questionPool = [...masterQuestions];
-    }
-
-    function loadNextQuestion() {
-      clearStatus();
-      if (questionPool.length === 0) resetPool();
-      const index = Math.floor(Math.random() * questionPool.length);
-      currentQuestion = questionPool.splice(index, 1)[0];
-      document.getElementById("question").innerText = currentQuestion.question;
-      currentQuestion.options.forEach((opt, idx) => {
-        const btn = document.getElementById("option" + idx);
-        btn.innerText = opt;
-        btn.disabled = false;
-      });
-    }
-
-    function checkAnswer(selected) {
-      if (gameOver) return;
-      const correct = currentQuestion.answer;
-      if (selected === correct) {
-        document.getElementById("option" + selected).classList.add("correct");
-        rupiya++;
+      if (currentPlayer === 1) {
+        player1Pos += roll;
+        if (player1Pos >= 14) {
+          alert("🎉 Player 1 (🔴) Wins!");
+          resetGame();
+          return;
+        }
       } else {
-        document.getElementById("option" + selected).classList.add("wrong");
-        document.getElementById("option" + correct).classList.add("correct");
-        lives--;
+        player2Pos += roll;
+        if (player2Pos >= 14) {
+          alert("🎉 Player 2 (🔵) Wins!");
+          resetGame();
+          return;
+        }
       }
-      updateStatus();
-      disableOptions();
-      if (lives <= 0) {
-        endGame();
-      } else {
-        setTimeout(loadNextQuestion, 1000);
+
+      updateBoard();
+      switchPlayer();
+    }
+
+    function updateBoard() {
+      // Clear board
+      for (let i = 0; i < 15; i++) {
+        document.getElementById(`cell${i}`).innerHTML = "";
       }
-    }
 
-    function disableOptions() {
-      for (let i = 0; i < 4; i++) document.getElementById("option" + i).disabled = true;
-    }
-
-    function clearStatus() {
-      for (let i = 0; i < 4; i++) {
-        const btn = document.getElementById("option" + i);
-        btn.classList.remove("correct", "wrong");
+      if (player1Pos >= 0 && player1Pos <= 14) {
+        document.getElementById(`cell${player1Pos}`).innerHTML += '<div class="token" style="color:red">🔴</div>';
       }
-    }
 
-    function updateStatus() {
-      document.getElementById("score").innerText = `Rupiya: ${rupiya}`;
-      document.getElementById("lives").innerText = `Chances: ${lives}`;
-    }
-
-    function buyChances(cost, plus) {
-      if (rupiya >= cost) {
-        rupiya -= cost;
-        lives += plus;
-        updateStatus();
-      } else {
-        alert("Not enough rupiya!");
+      if (player2Pos >= 0 && player2Pos <= 14) {
+        document.getElementById(`cell${player2Pos}`).innerHTML += '<div class="token" style="color:blue">🔵</div>';
       }
     }
 
-    function endGame() {
-      gameOver = true;
-      document.getElementById("gameOver").innerText = "💀 GAME OVER!";
+    function switchPlayer() {
+      currentPlayer = currentPlayer === 1 ? 2 : 1;
+      document.getElementById("turnText").innerText =
+        `Turn: Player ${currentPlayer} (${currentPlayer === 1 ? "🔴" : "🔵"})`;
     }
 
-    window.onload = () => {
-      resetPool();
-      loadNextQuestion();
-      updateStatus();
-    };
+    function resetGame() {
+      player1Pos = -1;
+      player2Pos = -1;
+      currentPlayer = 1;
+      document.getElementById("dice").innerText = "🎲";
+      updateBoard();
+      document.getElementById("turnText").innerText = "Turn: Player 1 (🔴)";
+    }
   </script>
 </body>
 </html>
