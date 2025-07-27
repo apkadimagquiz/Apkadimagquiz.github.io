@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Ultimate Quiz Game</title>
+  <title>Ultimate No Repeat Quiz</title>
   <style>
     body {
       margin: 0;
@@ -121,9 +121,20 @@
         question: "Fastest bird?",
         options: ["Crow", "Sparrow", "Falcon", "Eagle"],
         answer: 2
+      },
+      {
+        question: "Sun rises in?",
+        options: ["West", "North", "East", "South"],
+        answer: 2
+      },
+      {
+        question: "3 x 3 = ?",
+        options: ["6", "9", "12", "15"],
+        answer: 1
       }
     ];
 
+    let questionBank = [...questions];
     let currentQuestion = {};
     let rupiya = 0;
     let lives = 5;
@@ -131,10 +142,15 @@
 
     function loadNextQuestion() {
       clearStatus();
-      currentQuestion = questions[Math.floor(Math.random() * questions.length)];
+      if (questionBank.length === 0) {
+        questionBank = [...questions]; // Reset if all used
+      }
+      const index = Math.floor(Math.random() * questionBank.length);
+      currentQuestion = questionBank[index];
+      questionBank.splice(index, 1); // Remove asked question
       document.getElementById("question").innerText = currentQuestion.question;
-      currentQuestion.options.forEach((opt, index) => {
-        const btn = document.getElementById("option" + index);
+      currentQuestion.options.forEach((opt, idx) => {
+        const btn = document.getElementById("option" + idx);
         btn.innerText = opt;
         btn.disabled = false;
       });
@@ -193,7 +209,10 @@
       document.getElementById("gameOver").innerText = "💀 Game Over!";
     }
 
-    window.onload = loadNextQuestion;
+    window.onload = () => {
+      updateStatus();
+      loadNextQuestion();
+    };
   </script>
 
 </body>
