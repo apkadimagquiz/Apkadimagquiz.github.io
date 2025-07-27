@@ -2,16 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Hill Climb Racing Demo</title>
+  <title>Hill Climb Endless Demo</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
   <style>
-    body {
-      margin: 0;
-    }
-    canvas {
-      display: block;
-      margin: 0 auto;
-    }
+    body { margin: 0; background: #87ceeb; overflow: hidden; }
+    canvas { display: block; margin: 0 auto; }
   </style>
 </head>
 <body>
@@ -24,7 +19,7 @@
     physics: {
       default: 'arcade',
       arcade: {
-        gravity: { y: 300 },
+        gravity: { y: 500 },
         debug: false
       }
     },
@@ -37,9 +32,7 @@
 
   const game = new Phaser.Game(config);
 
-  let car;
-  let cursors;
-  let ground;
+  let car, cursors, groundGroup, camera;
 
   function preload() {
     this.load.image('ground', 'https://labs.phaser.io/assets/sprites/platform.png');
@@ -47,18 +40,21 @@
   }
 
   function create() {
-    ground = this.physics.add.staticGroup();
-    for (let i = 0; i < 8; i++) {
-      ground.create(100 + i * 128, 368, 'ground').setScale(0.5).refreshBody();
+    groundGroup = this.physics.add.staticGroup();
+    for (let i = 0; i < 20; i++) {
+      groundGroup.create(i * 128, 368, 'ground').setScale(0.5).refreshBody();
     }
 
     car = this.physics.add.sprite(100, 300, 'car').setScale(0.5);
     car.setBounce(0.2);
-    car.setCollideWorldBounds(true);
+    car.setCollideWorldBounds(false);
 
-    this.physics.add.collider(car, ground);
+    this.physics.add.collider(car, groundGroup);
 
     cursors = this.input.keyboard.createCursorKeys();
+
+    camera = this.cameras.main;
+    camera.startFollow(car);
   }
 
   function update() {
@@ -71,8 +67,27 @@
     }
 
     if (cursors.up.isDown && car.body.touching.down) {
-      car.setVelocityY(-250);
+      car.setVelocityY(-300);
     }
+
+    // Add new ground blocks ahead
+    let farthest = 0;
+    groundGroup.getChildren().forEach(function (block) {
+      if (block.x > farthest) {
+        farthest = block.x;
+      }
+    });
+
+    if (car.x > farthest - 512) {
+      let newBlock = groundGroup.create(farthest + 128, 368, 'ground').setScale(0.5).refreshBody();
+    }
+
+    // Remove blocks that are too far behind
+    groundGroup.getChildren().forEach(function (block) {
+      if (block.x < car.x - 512) {
+        groundGroup.remove(block, true, true);
+      }
+    });
   }
 </script>
 
