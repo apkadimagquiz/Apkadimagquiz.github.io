@@ -1,95 +1,94 @@
+index.html  ➜ Home + Products
+login.html  ➜ Real Login page
+cart.html   ➜ Cart & Checkout
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Hill Climb Endless Demo</title>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+  <title>My Cart</title>
   <style>
-    body { margin: 0; background: #87ceeb; overflow: hidden; }
-    canvas { display: block; margin: 0 auto; }
+    body { font-family: Arial; text-align: center; }
+    li { list-style: none; }
+    a { text-decoration: none; margin: 10px; }
   </style>
 </head>
 <body>
+  <h1>🧺 Your Cart</h1>
+  <a href="index.html">Home</a> | <a href="login.html">Login</a>
+  <ul id="cartItems"></ul>
+  <p id="total">Total: ₹0</p>
+  <button onclick="checkout()">Checkout</button>
 
-<script>
-  const config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 400,
-    physics: {
-      default: 'arcade',
-      arcade: {
-        gravity: { y: 500 },
-        debug: false
-      }
-    },
-    scene: {
-      preload: preload,
-      create: create,
-      update: update
-    }
-  };
+  <script>
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const cartItems = document.getElementById("cartItems");
 
-  const game = new Phaser.Game(config);
-
-  let car, cursors, groundGroup, camera;
-
-  function preload() {
-    this.load.image('ground', 'https://labs.phaser.io/assets/sprites/platform.png');
-    this.load.image('car', 'https://labs.phaser.io/assets/sprites/car.png');
-  }
-
-  function create() {
-    groundGroup = this.physics.add.staticGroup();
-    for (let i = 0; i < 20; i++) {
-      groundGroup.create(i * 128, 368, 'ground').setScale(0.5).refreshBody();
-    }
-
-    car = this.physics.add.sprite(100, 300, 'car').setScale(0.5);
-    car.setBounce(0.2);
-    car.setCollideWorldBounds(false);
-
-    this.physics.add.collider(car, groundGroup);
-
-    cursors = this.input.keyboard.createCursorKeys();
-
-    camera = this.cameras.main;
-    camera.startFollow(car);
-  }
-
-  function update() {
-    if (cursors.left.isDown) {
-      car.setVelocityX(-160);
-    } else if (cursors.right.isDown) {
-      car.setVelocityX(160);
-    } else {
-      car.setVelocityX(0);
-    }
-
-    if (cursors.up.isDown && car.body.touching.down) {
-      car.setVelocityY(-300);
-    }
-
-    // Add new ground blocks ahead
-    let farthest = 0;
-    groundGroup.getChildren().forEach(function (block) {
-      if (block.x > farthest) {
-        farthest = block.x;
-      }
+    cart.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `${item.name} - ₹${item.price}`;
+      cartItems.appendChild(li);
     });
 
-    if (car.x > farthest - 512) {
-      let newBlock = groundGroup.create(farthest + 128, 368, 'ground').setScale(0.5).refreshBody();
+    const total = cart.reduce((sum, i) => sum + i.price, 0);
+    document.getElementById("total").textContent = `Total: ₹${total}`;
+
+    function checkout() {
+      alert("Order placed! (Demo only)");
+      localStorage.removeItem("cart");
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login</title>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <style>
+    body { font-family: Arial; text-align: center; }
+    input { display: block; margin: 10px auto; padding: 8px; }
+    button { padding: 8px 16px; }
+    a { text-decoration: none; margin: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🔒 Login</h1>
+  <a href="index.html">Home</a>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <p>Or <a href="#" onclick="signup()">Sign Up</a></p>
+
+  <script>
+    // TODO: Replace with your Firebase config:
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => alert("Logged in!"))
+        .catch(error => alert(error.message));
     }
 
-    // Remove blocks that are too far behind
-    groundGroup.getChildren().forEach(function (block) {
-      if (block.x < car.x - 512) {
-        groundGroup.remove(block, true, true);
-      }
-    });
-  }
-</script>
-
+    function signup() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(() => alert("Signed up! Now login."))
+        .catch(error => alert(error.message));
+    }
+  </script>
 </body>
 </html>
