@@ -1,94 +1,175 @@
-index.html  ➜ Home + Products
-login.html  ➜ Real Login page
-cart.html   ➜ Cart & Checkout
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>My Cart</title>
+  <title>Dark Mode Quiz Game</title>
   <style>
-    body { font-family: Arial; text-align: center; }
-    li { list-style: none; }
-    a { text-decoration: none; margin: 10px; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+    .quiz-container {
+      background: #1c1c1e;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      padding: 30px;
+    }
+    .question {
+      font-size: 22px;
+      margin: 20px 0;
+    }
+    .option {
+      display: block;
+      background: #00f2fe;
+      color: #000;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-size: 18px;
+    }
+    .option:hover {
+      background: #4facfe;
+    }
+    .option.correct {
+      background: #28a745;
+      color: #fff;
+    }
+    .option.wrong {
+      background: #dc3545;
+      color: #fff;
+    }
+    .score {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .next-btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #17a2b8;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
-  <h1>🧺 Your Cart</h1>
-  <a href="index.html">Home</a> | <a href="login.html">Login</a>
-  <ul id="cartItems"></ul>
-  <p id="total">Total: ₹0</p>
-  <button onclick="checkout()">Checkout</button>
+
+  <div class="quiz-container">
+    <h2>🧩 Quiz Night</h2>
+    <div class="question" id="question">Loading...</div>
+    <button class="option" id="option0" onclick="checkAnswer(0)"></button>
+    <button class="option" id="option1" onclick="checkAnswer(1)"></button>
+    <button class="option" id="option2" onclick="checkAnswer(2)"></button>
+    <button class="option" id="option3" onclick="checkAnswer(3)"></button>
+    <div class="score" id="score">Score: 0</div>
+    <button class="next-btn" onclick="loadNextQuestion()">Next Question</button>
+  </div>
 
   <script>
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const cartItems = document.getElementById("cartItems");
+    const questions = [
+      {
+        question: "Which animal is known as King of Jungle?",
+        options: ["Tiger", "Lion", "Elephant", "Bear"],
+        answer: 1
+      },
+      {
+        question: "Capital of France?",
+        options: ["London", "Berlin", "Paris", "Madrid"],
+        answer: 2
+      },
+      {
+        question: "5 + 7 = ?",
+        options: ["10", "11", "12", "13"],
+        answer: 2
+      },
+      {
+        question: "Fastest land animal?",
+        options: ["Lion", "Cheetah", "Horse", "Leopard"],
+        answer: 1
+      },
+      {
+        question: "Largest ocean?",
+        options: ["Indian", "Atlantic", "Pacific", "Arctic"],
+        answer: 2
+      },
+      {
+        question: "Who invented Telephone?",
+        options: ["Newton", "Bell", "Tesla", "Einstein"],
+        answer: 1
+      },
+      {
+        question: "Which gas do plants take?",
+        options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
+        answer: 1
+      },
+      {
+        question: "2 * 6 = ?",
+        options: ["12", "10", "14", "8"],
+        answer: 0
+      },
+      {
+        question: "Which planet is known as Red Planet?",
+        options: ["Venus", "Mars", "Jupiter", "Mercury"],
+        answer: 1
+      },
+      {
+        question: "First man to step on Moon?",
+        options: ["Buzz Aldrin", "Yuri Gagarin", "Neil Armstrong", "Michael Collins"],
+        answer: 2
+      }
+    ];
 
-    cart.forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = `${item.name} - ₹${item.price}`;
-      cartItems.appendChild(li);
-    });
+    let currentQuestion = {};
+    let score = 0;
 
-    const total = cart.reduce((sum, i) => sum + i.price, 0);
-    document.getElementById("total").textContent = `Total: ₹${total}`;
-
-    function checkout() {
-      alert("Order placed! (Demo only)");
-      localStorage.removeItem("cart");
-      window.location.href = "index.html";
+    function loadNextQuestion() {
+      clearStatus();
+      currentQuestion = questions[Math.floor(Math.random() * questions.length)];
+      document.getElementById("question").innerText = currentQuestion.question;
+      currentQuestion.options.forEach((opt, index) => {
+        document.getElementById("option" + index).innerText = opt;
+        document.getElementById("option" + index).disabled = false;
+      });
     }
+
+    function checkAnswer(selected) {
+      const correct = currentQuestion.answer;
+      if (selected === correct) {
+        document.getElementById("option" + selected).classList.add("correct");
+        score++;
+      } else {
+        document.getElementById("option" + selected).classList.add("wrong");
+        document.getElementById("option" + correct).classList.add("correct");
+      }
+      for (let i = 0; i < 4; i++) {
+        document.getElementById("option" + i).disabled = true;
+      }
+      document.getElementById("score").innerText = "Score: " + score;
+    }
+
+    function clearStatus() {
+      for (let i = 0; i < 4; i++) {
+        document.getElementById("option" + i).classList.remove("correct", "wrong");
+      }
+    }
+
+    window.onload = loadNextQuestion;
   </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Login</title>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
-  <style>
-    body { font-family: Arial; text-align: center; }
-    input { display: block; margin: 10px auto; padding: 8px; }
-    button { padding: 8px 16px; }
-    a { text-decoration: none; margin: 10px; }
-  </style>
-</head>
-<body>
-  <h1>🔒 Login</h1>
-  <a href="index.html">Home</a>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-  <p>Or <a href="#" onclick="signup()">Sign Up</a></p>
 
-  <script>
-    // TODO: Replace with your Firebase config:
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-
-    function login() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => alert("Logged in!"))
-        .catch(error => alert(error.message));
-    }
-
-    function signup() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(() => alert("Signed up! Now login."))
-        .catch(error => alert(error.message));
-    }
-  </script>
 </body>
 </html>
