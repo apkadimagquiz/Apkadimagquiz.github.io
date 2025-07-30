@@ -2,96 +2,131 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Ludo Game</title>
+  <title>Apka Dimag - GK Quiz</title>
   <style>
     body {
-      background: #222;
-      color: #fff;
       font-family: Arial, sans-serif;
+      background: #f0f2f5;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 700px;
     }
     h1 {
-      margin: 20px 0;
+      color: #333;
+      margin-bottom: 20px;
     }
-    #board {
-      display: grid;
-      grid-template-columns: repeat(15, 30px);
-      grid-template-rows: repeat(15, 30px);
-      gap: 2px;
+    #question {
+      font-size: 22px;
+      margin-bottom: 20px;
     }
-    .cell {
-      width: 30px;
-      height: 30px;
-      border: 1px solid #555;
-      background: #333;
-    }
-    .pawn {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-    }
-    .red { background: red; }
-    .green { background: green; }
-    .blue { background: blue; }
-    .yellow { background: yellow; }
     button {
-      margin: 20px;
-      padding: 10px 20px;
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
       font-size: 18px;
+      border: none;
+      background: #007bff;
+      color: #fff;
+      border-radius: 5px;
       cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 20px;
+      color: green;
     }
   </style>
 </head>
 <body>
-  <h1>Ludo Game</h1>
-  <div id="board"></div>
-  <button onclick="rollDice()">Roll Dice</button>
-  <h2 id="status">Player 1's turn</h2>
+  <div class="container">
+    <h1>Apka Dimag</h1>
+    <div id="question"></div>
+    <div id="answers"></div>
+    <div id="result"></div>
+  </div>
 
   <script>
-    const board = document.getElementById('board');
-    const status = document.getElementById('status');
-    const size = 15;
-    const cells = [];
-    const players = ['red', 'green', 'blue', 'yellow'];
-    let currentPlayer = 0;
+    const quiz = [
+      { question: "Who is known as the Missile Man of India?", options: ["Homi Bhabha", "C.V. Raman", "A.P.J. Abdul Kalam", "Vikram Sarabhai"], answer: "A.P.J. Abdul Kalam" },
+      { question: "Which country will host the 2036 Olympics (planned)?", options: ["India", "USA", "China", "Japan"], answer: "India" },
+      { question: "Which element has the chemical symbol ‘O’?", options: ["Oxygen", "Gold", "Silver", "Iron"], answer: "Oxygen" },
+      { question: "Which is the longest river in India?", options: ["Yamuna", "Ganga", "Godavari", "Brahmaputra"], answer: "Ganga" },
+      { question: "What is the capital city of Australia?", options: ["Sydney", "Melbourne", "Canberra", "Brisbane"], answer: "Canberra" },
+      { question: "Who wrote the Indian National Anthem?", options: ["Bankim Chandra Chatterjee", "Rabindranath Tagore", "Sarojini Naidu", "Subhash Chandra Bose"], answer: "Rabindranath Tagore" },
+      { question: "Which is the largest desert in the world?", options: ["Sahara", "Gobi", "Kalahari", "Arctic"], answer: "Sahara" },
+      { question: "What does DNA stand for?", options: ["Deoxyribo Nucleic Acid", "Deoxyribose Nitrogen Atom", "Dynamic Nuclear Acid", "None of these"], answer: "Deoxyribo Nucleic Acid" },
+      { question: "Who was the first Indian woman in space?", options: ["Kalpana Chawla", "Sunita Williams", "Indira Gandhi", "Sarojini Naidu"], answer: "Kalpana Chawla" },
+      { question: "Which is the smallest state of India?", options: ["Goa", "Sikkim", "Tripura", "Mizoram"], answer: "Goa" },
+      { question: "Which planet is known as the Red Planet?", options: ["Mars", "Venus", "Jupiter", "Mercury"], answer: "Mars" },
+      { question: "What is the chemical symbol for Gold?", options: ["Au", "Ag", "Gd", "Go"], answer: "Au" },
+      { question: "Who invented the Telephone?", options: ["Alexander Graham Bell", "Thomas Edison", "Michael Faraday", "Nikola Tesla"], answer: "Alexander Graham Bell" },
+      { question: "Which Indian city is known as the Pink City?", options: ["Jaipur", "Jodhpur", "Jaisalmer", "Udaipur"], answer: "Jaipur" },
+      { question: "Who was the first President of India?", options: ["Jawaharlal Nehru", "B.R. Ambedkar", "Dr. Rajendra Prasad", "Sardar Patel"], answer: "Dr. Rajendra Prasad" },
+      { question: "Which gas is used for breathing in deep sea diving?", options: ["Helium", "Nitrogen", "Oxygen", "Hydrogen"], answer: "Helium" },
+      { question: "Who is the current Prime Minister of India (2025)?", options: ["Narendra Modi", "Rahul Gandhi", "Amit Shah", "Yogi Adityanath"], answer: "Narendra Modi" },
+      { question: "What is the hardest natural substance on Earth?", options: ["Iron", "Diamond", "Platinum", "Gold"], answer: "Diamond" },
+      { question: "Which country gifted the Statue of Liberty to the USA?", options: ["France", "Germany", "England", "Spain"], answer: "France" },
+      { question: "Where is the Taj Mahal located?", options: ["Delhi", "Agra", "Jaipur", "Lucknow"], answer: "Agra" },
+      { question: "Which is the largest organ in the human body?", options: ["Heart", "Liver", "Skin", "Brain"], answer: "Skin" },
+      { question: "Which animal is known as the Ship of the Desert?", options: ["Horse", "Camel", "Elephant", "Donkey"], answer: "Camel" },
+      { question: "Which planet is closest to the Sun?", options: ["Venus", "Mercury", "Mars", "Earth"], answer: "Mercury" },
+      { question: "Which is the tallest mountain in the world?", options: ["K2", "Kanchenjunga", "Mount Everest", "Nanda Devi"], answer: "Mount Everest" },
+      { question: "Who is known as the Iron Man of India?", options: ["B.R. Ambedkar", "Mahatma Gandhi", "Jawaharlal Nehru", "Sardar Vallabhbhai Patel"], answer: "Sardar Vallabhbhai Patel" },
+      { question: "Which festival is known as the festival of lights?", options: ["Holi", "Eid", "Diwali", "Christmas"], answer: "Diwali" },
+      // Add more questions here up to 50+ as needed!
+    ];
 
-    // Create grid
-    for (let i = 0; i < size * size; i++) {
-      const cell = document.createElement('div');
-      cell.classList.add('cell');
-      board.appendChild(cell);
-      cells.push(cell);
+    let availableQuestions = [...quiz];
+    let score = 0;
+
+    function loadQuestion() {
+      if (availableQuestions.length === 0) {
+        document.getElementById('question').innerText = "🎉 Quiz Over! Your score: " + score + "/" + quiz.length;
+        document.getElementById('answers').innerHTML = "";
+        return;
+      }
+
+      const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+      const currentQ = availableQuestions[randomIndex];
+      document.getElementById('question').innerText = currentQ.question;
+
+      const answersDiv = document.getElementById('answers');
+      answersDiv.innerHTML = "";
+
+      currentQ.options.forEach(option => {
+        const btn = document.createElement('button');
+        btn.innerText = option;
+        btn.onclick = () => checkAnswer(option, currentQ.answer, randomIndex);
+        answersDiv.appendChild(btn);
+      });
     }
 
-    // Example: Place 4 pawns for each player in corners
-    const positions = [0, size-1, size*(size-1), size*size-1];
-    const pawns = [];
-    players.forEach((color, i) => {
-      const pawn = document.createElement('div');
-      pawn.classList.add('pawn', color);
-      cells[positions[i]].appendChild(pawn);
-      pawns.push({ color, position: positions[i], el: pawn });
-    });
-
-    function rollDice() {
-      const roll = Math.floor(Math.random() * 6) + 1;
-      alert(`Player ${currentPlayer+1} rolled ${roll}`);
-      movePawn(currentPlayer, roll);
-      currentPlayer = (currentPlayer + 1) % players.length;
-      status.textContent = `Player ${currentPlayer+1}'s turn`;
+    function checkAnswer(selected, correct, index) {
+      if (selected === correct) {
+        alert("✅ Correct!");
+        score++;
+      } else {
+        alert("❌ Wrong! Correct answer: " + correct);
+      }
+      availableQuestions.splice(index, 1);
+      loadQuestion();
     }
 
-    function movePawn(playerIndex, steps) {
-      const pawn = pawns[playerIndex];
-      let newPos = pawn.position + steps;
-      if (newPos >= size * size) newPos = newPos % (size * size);
-      cells[pawn.position].innerHTML = ''; // Clear old
-      pawn.position = newPos;
-      cells[newPos].appendChild(pawn.el);
-    }
+    loadQuestion();
   </script>
 </body>
-</html>
+</html> 
